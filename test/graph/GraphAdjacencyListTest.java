@@ -55,7 +55,7 @@ class GraphAdjacencyListTest {
         // Act
         this.graph.addVertex(1);
         this.graph.addVertex(2);
-        this.graph.addEdge(1, 2);
+        this.graph.addEdge(1, 2, 1);
 
         // Assert
         assertEquals(edges, this.graph.getVertices().get(0).getAdjacent().size());
@@ -76,8 +76,8 @@ class GraphAdjacencyListTest {
         this.graph.addVertex(1);
         this.graph.addVertex(2);
         this.graph.addVertex(3);
-        this.graph.addEdge(1, 2);
-        this.graph.addEdge(1, 3);
+        this.graph.addEdge(1, 2, 3);
+        this.graph.addEdge(1, 3, 2);
 
         // Assert
         assertEquals(edges, this.graph.getVertices().get(0).getAdjacent().size());
@@ -96,10 +96,10 @@ class GraphAdjacencyListTest {
         // Act
         this.graph.addVertex(1);
         this.graph.addVertex(2);
-        this.graph.addEdge(1, 2);
+        this.graph.addEdge(1, 2, 1);
 
         // Assert
-        assertThrows(IllegalArgumentException.class, () -> this.graph.addEdge(1, 2));
+        assertThrows(IllegalArgumentException.class, () -> this.graph.addEdge(1, 2, 1));
     }
 
     @Test
@@ -147,7 +147,7 @@ class GraphAdjacencyListTest {
         // Act
         this.graph.addVertex(1);
         this.graph.addVertex(2);
-        this.graph.addEdge(1, 2);
+        this.graph.addEdge(1, 2, 5);
         this.graph.removeEdge(1, 2);
 
         // Assert
@@ -164,8 +164,8 @@ class GraphAdjacencyListTest {
         this.graph.addVertex(1);
         this.graph.addVertex(2);
         this.graph.addVertex(3);
-        this.graph.addEdge(1, 2);
-        this.graph.addEdge(1, 3);
+        this.graph.addEdge(1, 2, 5);
+        this.graph.addEdge(1, 3, 2);
         this.graph.removeEdge(1, 2);
         this.graph.removeEdge(1, 3);
 
@@ -197,11 +197,11 @@ class GraphAdjacencyListTest {
         this.graph.addVertex(4);
         this.graph.addVertex(5);
 
-        this.graph.addEdge(1, 2);
-        this.graph.addEdge(1, 3);
-        this.graph.addEdge(2, 4);
-        this.graph.addEdge(3, 4);
-        this.graph.addEdge(4, 5);
+        this.graph.addEdge(1, 2, 4);
+        this.graph.addEdge(1, 3, 2);
+        this.graph.addEdge(2, 4, 1);
+        this.graph.addEdge(3, 4, 5);
+        this.graph.addEdge(4, 5, 3);
 
         this.graph.BFS(1);
 
@@ -230,12 +230,12 @@ class GraphAdjacencyListTest {
         this.graph.addVertex(4);
         this.graph.addVertex(5);
 
-        this.graph.addEdge(1, 2);
-        this.graph.addEdge(1, 3);
-        this.graph.addEdge(2, 4);
-        this.graph.addEdge(3, 4);
-        this.graph.addEdge(4, 5);
-        this.graph.addEdge(5, 1);
+        this.graph.addEdge(1, 2, 4);
+        this.graph.addEdge(1, 3, 2);
+        this.graph.addEdge(2, 4, 1);
+        this.graph.addEdge(3, 4, 5);
+        this.graph.addEdge(4, 5, 3);
+        this.graph.addEdge(5, 1, 3);
 
         this.graph.BFS(1);
 
@@ -256,11 +256,11 @@ class GraphAdjacencyListTest {
         this.graph.addVertex(4);
         this.graph.addVertex(5);
 
-        this.graph.addEdge(1, 2);
-        this.graph.addEdge(1, 3);
-        this.graph.addEdge(2, 4);
-        this.graph.addEdge(3, 4);
-        this.graph.addEdge(4, 5);
+        this.graph.addEdge(1, 2, 4);
+        this.graph.addEdge(1, 3, 2);
+        this.graph.addEdge(2, 4, 1);
+        this.graph.addEdge(3, 4, 5);
+        this.graph.addEdge(4, 5, 3);
 
         this.graph.DFS(1);
 
@@ -281,8 +281,8 @@ class GraphAdjacencyListTest {
     @Test
     void testDFSWithACyclicGraph() {
         // Arrange
-        int discoveryTime = this.graph.isDirected() ? 4 : 6;
-        int finishingTime = this.graph.isDirected() ? 5 : 7;
+        int discoveryTime = 3;
+        int finishingTime = this.graph.isDirected() ? 6 : 8;
 
         // Act
         this.graph.addVertex(1);
@@ -291,17 +291,136 @@ class GraphAdjacencyListTest {
         this.graph.addVertex(4);
         this.graph.addVertex(5);
 
-        this.graph.addEdge(1, 2);
-        this.graph.addEdge(1, 3);
-        this.graph.addEdge(2, 4);
-        this.graph.addEdge(3, 4);
-        this.graph.addEdge(4, 5);
-        this.graph.addEdge(5, 1);
+        this.graph.addEdge(1, 2, 4);
+        this.graph.addEdge(1, 3, 2);
+        this.graph.addEdge(2, 4, 1);
+        this.graph.addEdge(3, 4, 5);
+        this.graph.addEdge(4, 5, 3);
+        this.graph.addEdge(5, 1, 3);
 
         this.graph.DFS(1);
 
         // Assert
-        assertEquals(discoveryTime, this.graph.getVertices().get(4).getDiscoveryTime());
-        assertEquals(finishingTime, this.graph.getVertices().get(4).getFinishingTime());
+        assertEquals(discoveryTime, this.graph.getVertices().get(3).getDiscoveryTime());
+        assertEquals(finishingTime, this.graph.getVertices().get(3).getFinishingTime());
+    }
+
+    @Test
+    void testDijkstra() {
+        // Arrange
+        int distance = 5;
+
+        // Act
+        this.graph.addVertex(1);
+        this.graph.addVertex(2);
+        this.graph.addVertex(3);
+        this.graph.addVertex(4);
+        this.graph.addVertex(5);
+
+        this.graph.addEdge(1, 2, 4);
+        this.graph.addEdge(1, 3, 2);
+        this.graph.addEdge(2, 4, 1);
+        this.graph.addEdge(3, 4, 5);
+        this.graph.addEdge(4, 5, 3);
+
+        this.graph.dijkstra(1);
+
+        // Assert
+        assertEquals(distance, this.graph.getVertices().get(3).getDistance());
+    }
+
+    @Test
+    void testDijkstraWithAVertexDoesNotExist() {
+        // Act
+        this.graph.addVertex(1);
+
+        // Assert
+        assertThrows(IllegalArgumentException.class, () -> this.graph.dijkstra(2));
+    }
+
+    @Test
+    void testDijkstraWithACyclicGraph() {
+        // Arrange
+        int distance = this.graph.isDirected() ? 8 : 3;
+
+        // Act
+        this.graph.addVertex(1);
+        this.graph.addVertex(2);
+        this.graph.addVertex(3);
+        this.graph.addVertex(4);
+        this.graph.addVertex(5);
+
+        this.graph.addEdge(1, 2, 4);
+        this.graph.addEdge(1, 3, 2);
+        this.graph.addEdge(2, 4, 1);
+        this.graph.addEdge(3, 4, 5);
+        this.graph.addEdge(4, 5, 3);
+        this.graph.addEdge(5, 1, 3);
+
+        this.graph.dijkstra(1);
+
+        // Assert
+        assertEquals(distance, this.graph.getVertices().get(4).getDistance());
+    }
+
+    @Test
+    void testFloydWarshall() {
+        // Arrange
+        int previous = 4;
+
+        // Act
+        this.graph.addVertex(1);
+        this.graph.addVertex(2);
+        this.graph.addVertex(3);
+        this.graph.addVertex(4);
+        this.graph.addVertex(5);
+
+        graph.addEdge(1, 2, 2);
+        graph.addEdge(1, 3, 4);
+        graph.addEdge(2, 4, 7);
+        graph.addEdge(3, 4, 3);
+        graph.addEdge(4, 5, 1);
+        graph.addEdge(1, 5, 20);
+
+        Vertex<Integer>[][] prevMatrix = this.graph.floydWarshall();
+
+        // Assert
+        assertEquals(previous, prevMatrix[0][4].getValue());
+    }
+
+    @Test
+    void testFloydWarshallWithWeightedNegativeEdges() {
+        // Arrange
+        int previous = 1;
+
+        // Act
+        this.graph.addVertex(1);
+        this.graph.addVertex(2);
+        this.graph.addVertex(3);
+        this.graph.addVertex(4);
+        this.graph.addVertex(5);
+
+        graph.addEdge(1, 2, 2);
+        graph.addEdge(1, 3, -4);
+        graph.addEdge(2, 4, 7);
+        graph.addEdge(3, 4, 0);
+        graph.addEdge(4, 5, 1);
+        graph.addEdge(1, 5, -10);
+
+        Vertex<Integer>[][] prevMatrix = this.graph.floydWarshall();
+
+        // Assert
+        assertEquals(previous, prevMatrix[0][4].getValue());
+    }
+
+    @Test
+    void testFloydWarshallWithAVertex() {
+        // Act
+        this.graph.addVertex(1);
+
+        Vertex<Integer>[][] prevMatrix = this.graph.floydWarshall();
+
+        // Assert
+        assertNull(prevMatrix[0][0]);
     }
 }

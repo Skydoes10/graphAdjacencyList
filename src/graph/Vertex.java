@@ -1,6 +1,6 @@
 package graph;
 
-import java.util.ArrayList;
+import java.util.*;
 
 public class Vertex<T> {
     private final T value;
@@ -9,11 +9,11 @@ public class Vertex<T> {
     private int discoveryTime;
     private int finishingTime;
     private Vertex<T> parent;
-    private final ArrayList<Vertex<T>> adjacent;
+    private final Map<Vertex<T>, Integer> adjacent;
 
     public Vertex(T value) {
         this.value = value;
-        this.adjacent = new ArrayList<>();
+        this.adjacent = new HashMap<>();
     }
 
     public T getValue() {
@@ -60,15 +60,15 @@ public class Vertex<T> {
         this.parent = parent;
     }
 
-    public void addAdjacent(Vertex<T> vertex) {
-        this.adjacent.add(vertex);
+    public void addAdjacent(Vertex<T> vertex, int weight) {
+        this.adjacent.put(vertex, weight);
     }
 
     public void removeAdjacent(Vertex<T> vertex) {
         this.adjacent.remove(vertex);
     }
 
-    public ArrayList<Vertex<T>> getAdjacent() {
+    public Map<Vertex<T>, Integer> getAdjacent() {
         return this.adjacent;
     }
 

@@ -22,7 +22,7 @@ public class GraphAdjacencyList<T> implements IGraph<T> {
     }
 
     @Override
-    public void addEdge(T source, T destination) {
+    public void addEdge(T source, T destination, int weight) {
         Vertex<T> vertex1 = getVertex(source);
         Vertex<T> vertex2 = getVertex(destination);
 
@@ -30,13 +30,13 @@ public class GraphAdjacencyList<T> implements IGraph<T> {
             throw new IllegalArgumentException("Vertex does not exist");
         }
 
-        if (vertex1.getAdjacent().contains(vertex2)) {
+        if (vertex1.getAdjacent().containsKey(vertex2)) {
             throw new IllegalArgumentException("Edge already exists");
         }
 
-        vertex1.addAdjacent(vertex2);
+        vertex1.addAdjacent(vertex2, weight);
         if (!this.directed) {
-            vertex2.addAdjacent(vertex1);
+            vertex2.addAdjacent(vertex1, weight);
         }
     }
 
@@ -62,7 +62,7 @@ public class GraphAdjacencyList<T> implements IGraph<T> {
             throw new IllegalArgumentException("Vertex does not exist");
         }
 
-        if (!vertex1.getAdjacent().contains(vertex2)) {
+        if (!vertex1.getAdjacent().containsKey(vertex2)) {
             throw new IllegalArgumentException("Edge does not exist");
         }
 
@@ -73,8 +73,8 @@ public class GraphAdjacencyList<T> implements IGraph<T> {
     }
 
     @Override
-    public void BFS(T start) {
-        Vertex<T> s = getVertex(start);
+    public void BFS(T source) {
+        Vertex<T> s = getVertex(source);
         if (s == null) {
             throw new IllegalArgumentException("Vertex does not exist");
         }
@@ -96,7 +96,7 @@ public class GraphAdjacencyList<T> implements IGraph<T> {
 
         while (!queue.isEmpty()) {
             Vertex<T> u = queue.poll();
-            for (Vertex<T> v : u.getAdjacent()) {
+            for (Vertex<T> v : u.getAdjacent().keySet()) {
                 if (v.getColor().equals("white")) {
                     v.setColor("gray");
                     v.setDistance(u.getDistance() + 1);
@@ -109,8 +109,8 @@ public class GraphAdjacencyList<T> implements IGraph<T> {
     }
 
     @Override
-    public void DFS(T start) {
-        Vertex<T> s = getVertex(start);
+    public void DFS(T source) {
+        Vertex<T> s = getVertex(source);
         if (s == null) {
             throw new IllegalArgumentException("Vertex does not exist");
         }
@@ -130,7 +130,7 @@ public class GraphAdjacencyList<T> implements IGraph<T> {
         start.setDiscoveryTime(this.time);
         start.setColor("gray");
 
-        for (Vertex<T> u : start.getAdjacent()) {
+        for (Vertex<T> u : start.getAdjacent().keySet()) {
             if (u.getColor().equals("white")) {
                 u.setParent(start);
                 DFSVisit(u);
@@ -142,10 +142,87 @@ public class GraphAdjacencyList<T> implements IGraph<T> {
         start.setFinishingTime(this.time);
     }
 
-    private Vertex<T> getVertex(T value) {
+    @Override
+    public Map<Vertex<T>, Vertex<T>> dijkstra(T source) {
+        Vertex<T> s = getVertex(source);
+
+        if (s == null) {
+            throw new IllegalArgumentException("Vertex does not exist");
+        }
+
+        Map<Vertex<T>, Vertex<T>> previous = new HashMap<>();
+        PriorityQueue<Vertex<T>> queue = new PriorityQueue<>(Comparator.comparingInt(Vertex::getDistance));
+        s.setDistance(0);
+
         for (Vertex<T> u : this.vertices) {
-            if (u.getValue().equals(value)) {
-                return u;
+            if (!u.equals(s)) {
+                u.setDistance(Integer.MAX_VALUE);
+            }
+            previous.put(u, null);
+            queue.add(u);
+        }
+
+        while (!queue.isEmpty()) {
+            Vertex<T> u = queue.poll();
+            for (Vertex<T> v : u.getAdjacent().keySet()) {
+                int alt = u.getDistance() + u.getAdjacent().get(v);
+                if (alt < v.getDistance()) {
+                    v.setDistance(alt);
+                    previous.put(v, u);
+                    queue.remove(v);
+                    queue.add(v);
+                }
+            }
+        }
+
+        return previous;
+    }
+
+    @Override
+    public Vertex<T>[][] floydWarshall() {
+        int[][] dist = new int[this.vertices.size()][this.vertices.size()];
+        Vertex<T>[][] prev = new Vertex[this.vertices.size()][this.vertices.size()];
+
+        for (int i = 0; i < this.vertices.size(); i++) {
+            for (int j = 0; j < this.vertices.size(); j++) {
+                if (i == j) {
+                    dist[i][j] = 0;
+                } else {
+                    dist[i][j] = Integer.MAX_VALUE;
+                }
+                prev[i][j] = null;
+            }
+        }
+
+        for (int i = 0; i < this.vertices.size(); i++) {
+            Vertex<T> u = this.vertices.get(i);
+            for (Vertex<T> v : u.getAdjacent().keySet()) {
+                dist[i][this.vertices.indexOf(v)] = u.getAdjacent().get(v);
+                prev[i][this.vertices.indexOf(v)] = u;
+            }
+        }
+
+        for (int k = 0; k < this.vertices.size(); k++) {
+            for (int i = 0; i < this.vertices.size(); i++) {
+                for (int j = 0; j < this.vertices.size(); j++) {
+                    if (dist[i][k] == Integer.MAX_VALUE || dist[k][j] == Integer.MAX_VALUE) {
+                        continue;
+                    }
+                    if (dist[i][j] > dist[i][k] + dist[k][j]) {
+                        dist[i][j] = dist[i][k] + dist[k][j];
+                        prev[i][j] = prev[k][j];
+                    }
+                }
+            }
+        }
+
+        return prev;
+    }
+
+    private Vertex<T> getVertex(T value) {
+        for (Vertex<T> vertex : this.vertices) {
+            if (vertex.getValue().equals(value)) {
+                return vertex;
             }
         }
         return null;
