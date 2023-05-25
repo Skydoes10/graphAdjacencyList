@@ -219,6 +219,40 @@ public class GraphAdjacencyList<T> implements IGraph<T> {
         return prev;
     }
 
+    @Override
+    public void prim(T source) {
+        Vertex<T> s = getVertex(source);
+
+        if (s == null) {
+            throw new IllegalArgumentException("Vertex does not exist");
+        }
+
+        for (Vertex<T> u : this.vertices) {
+            u.setDistance(Integer.MAX_VALUE);
+            u.setParent(null);
+            u.setColor("white");
+        }
+
+        s.setDistance(0);
+        s.setParent(null);
+
+        PriorityQueue<Vertex<T>> queue = new PriorityQueue<>(Comparator.comparingInt(Vertex::getDistance));
+        queue.addAll(this.vertices);
+
+        while (!queue.isEmpty()) {
+            Vertex<T> u = queue.poll();
+            for (Vertex<T> v : u.getAdjacent().keySet()) {
+                if (queue.contains(v) && u.getAdjacent().get(v) < v.getDistance()) {
+                    v.setParent(u);
+                    v.setDistance(u.getAdjacent().get(v));
+                    queue.remove(v);
+                    queue.add(v);
+                }
+            }
+            u.setColor("black");
+        }
+    }
+
     private Vertex<T> getVertex(T value) {
         for (Vertex<T> vertex : this.vertices) {
             if (vertex.getValue().equals(value)) {

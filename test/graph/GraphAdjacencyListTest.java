@@ -423,4 +423,62 @@ class GraphAdjacencyListTest {
         // Assert
         assertNull(prevMatrix[0][0]);
     }
+
+    @Test
+    void testPrim() {
+        // Arrange
+        int weight = 1;
+
+        // Act
+        this.graph.addVertex(1);
+        this.graph.addVertex(2);
+        this.graph.addVertex(3);
+        this.graph.addVertex(4);
+        this.graph.addVertex(5);
+
+        this.graph.addEdge(1, 2, 4);
+        this.graph.addEdge(1, 3, 2);
+        this.graph.addEdge(2, 4, 1);
+        this.graph.addEdge(3, 4, 5);
+        this.graph.addEdge(5, 2, 1);
+
+        this.graph.prim(5);
+
+        // Assert
+        assertEquals(weight, this.graph.getVertices().get(3).getDistance());
+        assertEquals(weight, this.graph.getVertices().get(1).getDistance());
+    }
+
+    @Test
+    void testPrimWithAVertexDoesNotExist() {
+        // Act
+        this.graph.addVertex(1);
+
+        // Assert
+        assertThrows(IllegalArgumentException.class, () -> this.graph.prim(2));
+    }
+
+    @Test
+    void testPrimWithNegativeWeight() {
+        // Arrange
+        int weight = 1;
+
+        // Act
+        this.graph.addVertex(1);
+        this.graph.addVertex(2);
+        this.graph.addVertex(3);
+        this.graph.addVertex(4);
+        this.graph.addVertex(5);
+
+        this.graph.addEdge(1, 2, -1);
+        this.graph.addEdge(1, 3, 2);
+        this.graph.addEdge(2, 4, 1);
+        this.graph.addEdge(3, 4, 5);
+        this.graph.addEdge(5, 2, -3);
+
+        this.graph.prim(5);
+
+        // Assert
+        assertEquals(weight, this.graph.getVertices().get(3).getDistance());
+    }
 }

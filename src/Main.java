@@ -56,5 +56,14 @@ public class Main {
             }
             System.out.println();
         }
+
+        System.out.println();
+
+        graph.prim(1);
+
+        System.out.println("Prim:");
+        for (Vertex<Integer> vertexAL : graph.getVertices()) {
+            System.out.println(vertexAL.getValue() + " " + vertexAL.getColor() + " " + vertexAL.getDistance() + " " + vertexAL.getParent());
+        }
     }
 }

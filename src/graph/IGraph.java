@@ -19,4 +19,6 @@ public interface IGraph<T> {
     Map<Vertex<T>, Vertex<T>> dijkstra(T source);
 
     Vertex<T>[][] floydWarshall();
+
+    void prim(T source);
 }
